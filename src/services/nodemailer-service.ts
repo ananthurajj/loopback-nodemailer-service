@@ -1,6 +1,7 @@
 import {inject} from '@loopback/core';
 import {HttpErrors} from '@loopback/rest';
 import * as nodemailer from 'nodemailer';
+import {Options} from 'nodemailer/lib/mailer';
 import {NodemailerBindings} from '../keys';
 
 type mailObject = {
@@ -10,7 +11,7 @@ type mailObject = {
   html: string
 }
 export interface NodemailerSericeType<T = Object> {
-  sendMail(mailObj: mailObject): Promise<T>;
+  sendMail(mailObj: Options): Promise<T>;
 }
 
 export class NodemailerService {
@@ -21,6 +22,10 @@ export class NodemailerService {
     @inject(NodemailerBindings.EMAIL_PROD) private emailProd: string,
     @inject(NodemailerBindings.PASS_PROD) private passProd: string,
   ) {
+    console.log(this.emailProd)
+    console.log(this.emailStag)
+    console.log(this.passProd)
+    console.log(this.passStag)
     if (process.env.NODE_ENV == 'production') {
       if (!this.emailProd || !this.passProd) throw new HttpErrors.InternalServerError('Nodemailer Production Credentials not configured.');
     } else {
@@ -37,7 +42,7 @@ export class NodemailerService {
     });
   }
 
-  sendMail(mailObj: object): Promise<object> {
+  sendMail(mailObj: Options): Promise<nodemailer.SentMessageInfo> {
     return this.transporter.sendMail(mailObj);
   }
 }
